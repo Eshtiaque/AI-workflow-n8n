@@ -1,0 +1,284 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test-webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "b7fc1a36-ea69-4d45-aee0-9e09f1fa4a15",
+      "name": "Webhook",
+      "webhookId": "cb65aea5-6474-4963-8843-06d9c59e8825"
+    },
+    {
+      "parameters": {
+        "url": "https://en.wikipedia.org/wiki/Internet",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        -112
+      ],
+      "id": "9cfe13f8-5106-4ef2-80fb-4191ba8c2022",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": ""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    \"model\": \"llama-3.3-70b-versatile\",\n    \"messages\": [\n      {\n        \"role\": \"user\",\n        \"content\": \"Summarize this text in 3 sentences (ignore HTML tags): \" + $json.data.substring(0, 12000)\n      }\n    ]\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        -144
+      ],
+      "id": "5113e965-3084-4fc9-96b8-fc321b6bf115",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": ""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    \"model\": \"llama-3.3-70b-versatile\",\n    \"messages\": [\n      {\n        \"role\": \"user\",\n        \"content\": \"Extract 5 key insights from this text: \" + $('HTTP Request').item.json.data.substring(0, 12000)\n      }\n    ]\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        -112
+      ],
+      "id": "e7bdec13-6144-40bd-9f34-8d655d2f7c52",
+      "name": "Get Insights"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SAzoMz5EY0xr1Y88adpVxJNTtd292mjVa86MGt4MsvM",
+          "mode": "list",
+          "cachedResultName": "AI Project Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SAzoMz5EY0xr1Y88adpVxJNTtd292mjVa86MGt4MsvM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SAzoMz5EY0xr1Y88adpVxJNTtd292mjVa86MGt4MsvM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Session ID": "={{ $('Webhook').item.json.body.session_id }}",
+            "Article URL": "={{ $('Webhook').item.json.body.article_url }}",
+            "Insights": "={{ $json.choices[0].message.content }}",
+            "Summary": "={{ $('HTTP Request1').item.json.choices[0].message.content }}",
+            "Email": "={{ $('Webhook').item.json.body.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Session ID",
+              "displayName": "Session ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article URL",
+              "displayName": "Article URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Insights",
+              "displayName": "Insights",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        96
+      ],
+      "id": "6ba6ca0e-7318-4b14-bcf7-7848eb4e9a8f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ux32nuz3153tA8nM",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "our Article Summary & Insights",
+        "message": "=Here is the Summary:<br>\n\n {{ $json.Summary }}\n<br><br>Here are the Insights:<br>\n{{ $json.Insights }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        80
+      ],
+      "id": "bed5f489-0da5-4bf7-9bd3-d1211702774b",
+      "name": "Send a message",
+      "webhookId": "1f34f9e0-bfd6-4c77-b93e-aeefa2c524aa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sjkG1D5v6unmDhET",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Get Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Insights": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2bda66aa-c014-41ef-8844-3f61d7e9efa1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fcfe3572f762fe03f49cd7f121986520195395104243e6ab4735cb065e15a8b1"
+  },
+  "id": "DGLN7gS1TKBncWMq",
+  "tags": []
+}
