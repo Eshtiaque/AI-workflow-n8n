@@ -55,14 +55,15 @@ To run this project locally, you will need:
    cd your-repo-name
 Install the required Python packages:
 
-Bash
+```
 pip install fastapi uvicorn pydantic requests
 Update the N8N_WEBHOOK_URL variable in main.py (or your Python file) to point to your active n8n webhook URL.
-
+```
 Run the FastAPI server:
 
-Bash
+```
 uvicorn main:app --reload
+```
 The server will start at http://127.0.0.1:8000.
 
 3. Frontend Setup
